@@ -4,18 +4,9 @@ import pandas as pd
 def search_for_possibilities():
     print('Starting applying Graham')
 
-    def company_size(df_data):
-        company_size_list = []
-        for index, row in df_data.iterrows():
-            try:
-                if df_data.loc[index]['marketCap'] - 2000000000 > 0:
-                    company_size_list.append(1)
-                else:
-                    company_size_list.append(-1)
-            except:
-                company_size_list.append(-1)
-        return company_size_list
-
+    # Criteria:
+    # (Current Ratio > 2) and
+    # (total non-current liabilities < working capital or < net current asset value)
     def financial_strength(df_data):
         financial_strength_list = []
         years_list = []
@@ -23,13 +14,9 @@ def search_for_possibilities():
         for index, row in df_data.iterrows():
             if int(index[0:4]) not in years_list:
                 try:
-                    #total_current_asset = df_data.loc[index]['totalCurrentAssets']
-                    #total_current_liabilities = df_data.loc[index]['totalCurrentLiabilities']
                     current_ratio = df_data.loc[index]['currentRatio']
-                    cash_and_equiv = df_data.loc[index]['cashAndCashEquivalents']
                     total_non_current_liabilities = df_data.loc[index]['totalNonCurrentLiabilities']
                     working_capital = df_data.loc[index]['workingCapital']
-                    #net_current_asset = total_current_asset - cash_and_equiv - total_current_liabilities
                     net_current_asset_value = df_data.loc[index]['netCurrentAssetValue']
 
                     if (
@@ -53,6 +40,8 @@ def search_for_possibilities():
             financial_strength_list.append(int(yearly_strength_dict[year]))
         return financial_strength_list
 
+    # Criteria:
+    # Positive EPS for the last 10 years
     def earnings_stability(df_data):
         earnings_stability_list = []
         years_list = []
@@ -79,6 +68,8 @@ def search_for_possibilities():
                 earnings_stability_list.append(0)
         return earnings_stability_list
 
+    # Criteria:
+    # Continious dividends the last 10 years (not 20 years because not enough data)
     def dividend_stability(df_data):
         dividend_stability_list = []
         years_list = []
@@ -105,6 +96,8 @@ def search_for_possibilities():
                 dividend_stability_list.append(0)
         return dividend_stability_list
 
+    # Criteria:
+    # mean EPS of last 3 years must be +33% than mean EPS of first 3 years
     def earnings_growth(df_data):
         earnings_growth_list = []
         years_list = []
@@ -127,6 +120,8 @@ def search_for_possibilities():
                 earnings_growth_list.append(0)
         return earnings_growth_list
 
+    # Calculation:
+    # Today's PE-Ratio = Price / mean of the last 3 EPS
     def pe(df_data):
         pe_list = []
         years_list = []
@@ -145,17 +140,18 @@ def search_for_possibilities():
                 pe_list.append(-1)
         return pe_list
 
+    # Calculation:
+    # Today's PB-Ratio = Price / Actual Book Value per Share
     def pb(df_data):
         pb_list = []
         years_list = []
         yearly_bps_dict = {}
         for index, row in df_data.iterrows():
             if int(index[0:4]) not in years_list:
-                yearly_bps_dict[int(index[0:4])] = df_data.loc[index]['eps']
+                yearly_bps_dict[int(index[0:4])] = df_data.loc[index]['bookValuePerShare']
                 years_list.append(int(index[0:4]))
 
         for index, row in df_data.iterrows():
-            year = int(index[0:4])
             try:
                 pb_ratio = row['price'] / row['bookValuePerShare']
                 pb_list.append(pb_ratio)
@@ -163,23 +159,7 @@ def search_for_possibilities():
                 pb_list.append(-1)
         return pb_list
 
-    def is_buy(df_data):
-        is_buy_list = []
-        for index, row in df_data.iterrows():
-            if (
-                    int(row['grahams_company_size_decision']) == 1 and
-                    int(row['grahams_financial_strength_decision']) == 1 and
-                    int(row['grahams_earnings_stability_decision']) == 1 and
-                    int(row['grahams_dividend_stability_decision']) == 1 and
-                    int(row['grahams_earnings_growth_decision']) == 1 and
-                    int(row['grahams_pe_pb_decision']) == 1
-            ):
-            #if row['company_size'] == 1 and row['pe_pb'] == 1 and row['dividend_stability'] == 1:
-                is_buy_list.append(1)
-            else:
-                is_buy_list.append(0)
-        return is_buy_list
-
+    # Get used tickers
     with open('data/tickers/stocks_used.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
@@ -188,7 +168,7 @@ def search_for_possibilities():
         csv_name = str(ticker) + '.csv'
         df_data = pd.read_csv(os.path.join('data/financials/', csv_name), index_col=0)
 
-        #df_data['grahams_company_size_decision'] = company_size(df_data)
+        # Call functions for Graham evaluation
         df_data['grahams_financial_strength_decision'] = financial_strength(df_data)
         df_data['grahams_earnings_stability_decision'] = earnings_stability(df_data)
         df_data['grahams_dividend_stability_decision'] = dividend_stability(df_data)
@@ -196,9 +176,10 @@ def search_for_possibilities():
         df_data['grahams_pe'] = pe(df_data)
         df_data['grahams_pb'] = pb(df_data)
 
+        # Save calculations by replacing old CSV with new CSV
         os.remove(os.path.join('data/financials/', csv_name))
         df_data.to_csv(os.path.join('data/financials/', csv_name), index=True, header=True)
-        #df_data['grahams_is_buy_decision'] = is_buy(df_data)
+
     print('Finished applying Graham')
 
 
