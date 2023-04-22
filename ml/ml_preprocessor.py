@@ -66,6 +66,9 @@ def clean_table():
     df_master = df_master.replace('0.0', np.nan)
     df_master = df_master.replace('0', np.nan)
 
+    df_master = df_master.replace(np.inf, 10000000000.0)
+    df_master = df_master.replace(-np.inf, -10000000000.0)
+
     print('Amount of data: ', df_master.size)
     print('Amount of nan: ', df_master.isna().sum().sum())
     print('% of nan: ', 100/df_master.size*df_master.isna().sum().sum())

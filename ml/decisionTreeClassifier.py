@@ -1,41 +1,47 @@
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import train_test_split # Import train_test_split function
-from sklearn import metrics
-from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.tree import export_text
 from sklearn.tree import _tree
 import numpy as np
 
 def dtc():
-    df_data = pd.read_csv('data/financials/master.csv', index_col=0)
+    # Load the data into a DataFrame called df_data
+    df_data = pd.read_csv('data/financials/master.csv')
 
+    # Assign the features to x and the target variable to y
     x = df_data.drop(['ml_goal_reached', 'ticker', 'price', 'price_target'], axis=1)
     y = df_data['ml_goal_reached']
 
-    feature_names = list(x.columns)
+    # Split the data into training and testing sets with a 80-20 split
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.8, test_size=0.2)
+    # Define the decision tree classifier object
+    clf = DecisionTreeClassifier()
 
-    model = DecisionTreeClassifier()
+    # Fit the classifier to the training data
+    clf.fit(x_train, y_train)
 
-    model = model.fit(x_train,y_train)
+    # Make predictions on the test data
+    y_pred = clf.predict(x_test)
 
-    y_pred = model.predict(x_test)
-
-    tree_rules = export_text(model, feature_names=list(x_train.columns))
-
+    # Evaluate the performance of the classifier
     accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
     print("Accuracy:", accuracy)
+    print("Precision:", precision)
+    print("Recall:", recall)
+    print("F1 Score:", f1)
 
-    print()
+    #rules = get_rules(clf, list(x_train.columns), ['1', '-1'])
+    #for r in rules:
+    #    if "then class: -1 (proba: 100.0%)" in r:
+    #        print(r)
 
-    rules = get_rules(model, list(x_train.columns), ['1', '-1'])
-    for r in rules:
-        if "then class: -1 (proba: 100.0%)" in r:
-            print(r)
 
-    #print(metrics.r2_score(y_test, y_pred))
 
 def get_rules(tree, feature_names, class_names):
     tree_ = tree.tree_

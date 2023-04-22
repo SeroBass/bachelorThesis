@@ -50,10 +50,10 @@ def rfc ():
         'bootstrap': [True, False],
         'random_state': [1, 2, 30, 42]
     }
-    #rscv = RandomizedSearchCV(estimator=rf, param_distributions=grid_rf, cv=3, n_jobs=-1, verbose=2, n_iter=200)
-    #rscv_fit = rscv.fit(X_train, y_train)
-    #best_parameters = rscv_fit.best_params_
-    #print(best_parameters)
+    rscv = RandomizedSearchCV(estimator=rf, param_distributions=grid_rf, cv=3, n_jobs=-1, verbose=2, n_iter=200)
+    rscv_fit = rscv.fit(X_train, y_train)
+    best_parameters = rscv_fit.best_params_
+    print(best_parameters)
 
 
 
