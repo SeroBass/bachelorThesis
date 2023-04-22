@@ -137,7 +137,7 @@ def search_for_possibilities():
                 pe_ratio = row['price']/((yearly_eps_dict[year] + yearly_eps_dict[year - 1] + yearly_eps_dict[year - 2]) / 3)
                 pe_list.append(pe_ratio)
             except:
-                pe_list.append(-1)
+                pe_list.append(0)
         return pe_list
 
     # Calculation:
@@ -156,7 +156,7 @@ def search_for_possibilities():
                 pb_ratio = row['price'] / row['bookValuePerShare']
                 pb_list.append(pb_ratio)
             except:
-                pb_list.append(-1)
+                pb_list.append(0)
         return pb_list
 
     # Get used tickers
