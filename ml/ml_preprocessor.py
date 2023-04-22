@@ -13,7 +13,7 @@ def set_target():
     for ticker in text:
         csv_name = str(ticker) + '.csv'
 
-        df_stock_fund = (pd.read_csv(os.path.join('../data/financials/', csv_name), index_col=0)).iloc[::-1]
+        df_stock_fund = (pd.read_csv(os.path.join('data/financials/', csv_name), index_col=0)).iloc[::-1]
         iteration_start_at = 0
         goal_reached_list = []
 
@@ -29,8 +29,8 @@ def set_target():
             iteration_start_at = iteration_start_at + 1
 
         df_stock_fund['ml_goal_reached'] = goal_reached_list
-        os.remove(os.path.join('../data/financials/', csv_name))
-        df_stock_fund.to_csv(os.path.join('../data/financials/', csv_name), index=True, header=True)
+        os.remove(os.path.join('data/financials/', csv_name))
+        df_stock_fund.to_csv(os.path.join('data/financials/', csv_name), index=True, header=True)
 
 def merge_all_companies():
     print('Merging all dataframes')
@@ -39,20 +39,20 @@ def merge_all_companies():
         text = [t.strip() for t in text]
 
     csv_name = str(text[0]) + '.csv'
-    df_start = pd.read_csv(os.path.join('../data/financials', csv_name))
+    df_start = pd.read_csv(os.path.join('data/financials', csv_name))
 
     i = 1
     while i <= len(text)-2:
         try:
             csv_name = str(text[i]) + '.csv'
-            df_merge_candidate = pd.read_csv(os.path.join('../data/financials', csv_name))
+            df_merge_candidate = pd.read_csv(os.path.join('data/financials', csv_name))
             df_start = pd.concat([df_merge_candidate, df_start], ignore_index=True)
         except:
             print('No company left')
         i = i + 1
 
     df_start.rename(columns={'Unnamed: 0': 'date'}, inplace=True)
-    df_start = df_start[df_start['date'].str.contains('2023|2022') == False]
+    #df_start = df_start[df_start['date'].str.contains('2023|2022') == False]
     df_start = df_start.drop(['date'], axis=1)
     df_start.to_csv('data/financials/master.csv', index=False, header=True)
     print('Finished merging. Length of index: ', len(df_start.index))
