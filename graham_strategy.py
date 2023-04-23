@@ -165,6 +165,7 @@ def search_for_possibilities():
         text = [t.strip() for t in text]
 
     for ticker in text:
+        print('Apply Graham Calculations on ', ticker)
         csv_name = str(ticker) + '.csv'
         df_data = pd.read_csv(os.path.join('data/financials/', csv_name), index_col=0)
 

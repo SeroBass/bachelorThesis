@@ -9,6 +9,8 @@ def trade_graham_50():
     print('Backtesting Grahams Strategy')
     if os.path.exists('data/backtesting/transaction_history_graham_50.csv') == True:
         os.remove('data/backtesting/transaction_history_graham_50.csv')
+    if os.path.exists('data/backtesting') == False:
+        os.mkdir('data/backtesting')
 
     data = {
         'ticker': [],
@@ -108,6 +110,8 @@ def trade_ml_50():
     print('Backtesting ML Strategy')
     if os.path.exists('data/backtesting/transaction_history_ml_50.csv') == True:
         os.remove('data/backtesting/transaction_history_ml_50.csv')
+    if os.path.exists('data/backtesting') == False:
+        os.mkdir('data/backtesting')
 
     data = {
         'ticker': [],
