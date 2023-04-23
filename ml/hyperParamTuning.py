@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 
 def tune_dtc():
+    print('Start Hyperparameter Tuning for Decision Tree Classifier')
     # Load the data into a DataFrame called df_data
     # Assign the features to X and the target variable to y
     df_data = pd.read_csv('data/financials/master.csv')

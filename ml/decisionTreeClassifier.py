@@ -15,7 +15,7 @@ def dtc():
     y = df_data['ml_goal_reached']
 
     # Split the data into training and testing sets with a 80-20 split
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.1, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
     # Define the decision tree classifier object
     clf = DecisionTreeClassifier(random_state=42)
@@ -23,18 +23,29 @@ def dtc():
     # Fit the classifier to the training data
     clf.fit(x_train, y_train)
 
+    # Make predictions on the training data
+    y_train_pred = clf.predict(x_train)
+
     # Make predictions on the test data
-    y_pred = clf.predict(x_test)
+    y_test_pred = clf.predict(x_test)
+
+    # Compute the training and test accuracy
+    train_accuracy = accuracy_score(y_train, y_train_pred)
+    test_accuracy = accuracy_score(y_test, y_test_pred)
+
+    # Print the training and test accuracy
+    print("Training Accuracy:", train_accuracy)
+    print("Test Accuracy:", test_accuracy)
 
     # Evaluate the performance of the classifier
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
-    print("Accuracy:", accuracy)
-    print("Precision:", precision)
-    print("Recall:", recall)
-    print("F1 Score:", f1)
+    #accuracy = accuracy_score(y_test, y_pred)
+    #precision = precision_score(y_test, y_pred)
+    #recall = recall_score(y_test, y_pred)
+    #f1 = f1_score(y_test, y_pred)
+    #print("Accuracy:", accuracy)
+    #print("Precision:", precision)
+    #print("Recall:", recall)
+    #print("F1 Score:", f1)
 
     rules = get_rules(clf, list(x_train.columns), ['1', '-1'])
 
