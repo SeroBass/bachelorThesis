@@ -10,15 +10,18 @@ def dtc():
     # Load the data into a DataFrame called df_data
     df_data = pd.read_csv('data/financials/master.csv')
 
+    df_data = df_data.replace(np.inf, 10000000000.0)
+    df_data = df_data.replace(-np.inf, -10000000000.0)
+
     # Assign the features to x and the target variable to y
     x = df_data.drop(['ml_goal_reached', 'ticker', 'price', 'price_target'], axis=1)
     y = df_data['ml_goal_reached']
 
     # Split the data into training and testing sets with a 80-20 split
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.1, random_state=42)
 
     # Define the decision tree classifier object
-    clf = DecisionTreeClassifier()
+    clf = DecisionTreeClassifier(random_state=42)
 
     # Fit the classifier to the training data
     clf.fit(x_train, y_train)
@@ -36,12 +39,13 @@ def dtc():
     print("Recall:", recall)
     print("F1 Score:", f1)
 
-    #rules = get_rules(clf, list(x_train.columns), ['1', '-1'])
-    #for r in rules:
-    #    if "then class: -1 (proba: 100.0%)" in r:
-    #        print(r)
+    rules = get_rules(clf, list(x_train.columns), ['1', '-1'])
 
-
+    i = 1
+    for r in rules:
+        if "then class: -1 (proba: 100.0%)" in r and i <= 10:
+            print(r)
+            i = i + 1
 
 def get_rules(tree, feature_names, class_names):
     tree_ = tree.tree_
