@@ -11,6 +11,6 @@ from ml import decisionTreeClassifier, hyperParamTuning
 #ml_preprocessor.merge_all_companies()
 #ml_preprocessor.clean_table()
 #randomForestClassifier.rfc()
-hyperParamTuning.tune_dtc()
-#decisionTreeClassifier.dtc()
+#hyperParamTuning.tune_dtc()
+decisionTreeClassifier.dtc()
 #trader.trade_ml_50()

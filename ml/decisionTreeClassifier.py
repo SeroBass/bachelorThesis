@@ -15,7 +15,7 @@ def dtc():
     y = df_data['ml_goal_reached']
 
     # Split the data into training and testing sets with a 80-20 split
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.1, random_state=42)
 
     # Define the decision tree classifier object
     clf = DecisionTreeClassifier(random_state=42)
