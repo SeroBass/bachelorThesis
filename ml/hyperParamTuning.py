@@ -6,7 +6,7 @@ import pandas as pd
 def tune_dtc():
     # Load the data into a DataFrame called df_data
     # Assign the features to X and the target variable to y
-    df_data = pd.read_csv('data/financials/master.csv', index_col=0)
+    df_data = pd.read_csv('data/financials/master.csv')
     X = df_data.drop(['ml_goal_reached', 'ticker', 'price', 'price_target'], axis=1)
     y = df_data['ml_goal_reached']
 
