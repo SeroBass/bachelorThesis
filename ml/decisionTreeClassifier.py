@@ -10,9 +10,6 @@ def dtc():
     # Load the data into a DataFrame called df_data
     df_data = pd.read_csv('data/financials/master.csv')
 
-    df_data = df_data.replace(np.inf, 10000000000.0)
-    df_data = df_data.replace(-np.inf, -10000000000.0)
-
     # Assign the features to x and the target variable to y
     x = df_data.drop(['ml_goal_reached', 'ticker', 'price', 'price_target'], axis=1)
     y = df_data['ml_goal_reached']
