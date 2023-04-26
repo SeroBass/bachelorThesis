@@ -6,6 +6,7 @@ from sklearn.tree import export_text
 from sklearn.tree import _tree
 import numpy as np
 
+
 def dtc():
     # Load the data into a DataFrame called df_data
     df_data = pd.read_csv('data/financials/master.csv')
@@ -18,7 +19,7 @@ def dtc():
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.1, random_state=42)
 
     # Define the decision tree classifier object
-    clf = DecisionTreeClassifier(random_state=42)
+    clf = DecisionTreeClassifier()
 
     # Fit the classifier to the training data
     clf.fit(x_train, y_train)

@@ -6,6 +6,7 @@ import numpy as np
 import os
 import os.path
 
+
 def download_data():
     print('Start downloading data')
 
@@ -18,7 +19,8 @@ def download_data():
     os.mkdir('data/financials')
 
     # define date range and save daily dates
-    df_all_tickers = pd.read_json("https://financialmodelingprep.com/api/v3/financial-statement-symbol-lists?apikey=" + api_key)
+    df_all_tickers = pd.read_json(
+        "https://financialmodelingprep.com/api/v3/financial-statement-symbol-lists?apikey=" + api_key)
     ticker_list = []
     dead_tickers_list = []
     used_tickers_list = []
@@ -57,19 +59,25 @@ def download_data():
             # Download Balance Sheet
             url = "https://financialmodelingprep.com/api/v3/balance-sheet-statement/" + ticker + "?limit=120&apikey=8b7b2301a41406dc331928f7bd7e1cac"
             df = pd.read_json(url)
-            df = df.drop(['date', 'reportedCurrency', 'cik', 'fillingDate', 'acceptedDate', 'period', 'link', 'finalLink', 'symbol'], axis=1)
+            df = df.drop(
+                ['date', 'reportedCurrency', 'cik', 'fillingDate', 'acceptedDate', 'period', 'link', 'finalLink',
+                 'symbol'], axis=1)
             df_balance_sheet = df.set_index(['calendarYear'])
 
             # Download Cash Flow Statement
             url = "https://financialmodelingprep.com/api/v3/cash-flow-statement/" + ticker + "?limit=120&apikey=8b7b2301a41406dc331928f7bd7e1cac"
             df = pd.read_json(url)
-            df = df.drop(['date', 'reportedCurrency', 'cik', 'fillingDate', 'acceptedDate', 'period', 'link', 'finalLink', 'symbol'], axis=1)
+            df = df.drop(
+                ['date', 'reportedCurrency', 'cik', 'fillingDate', 'acceptedDate', 'period', 'link', 'finalLink',
+                 'symbol'], axis=1)
             df_cashflow_statement = df.set_index(['calendarYear'])
 
             # Download Income Statement
             url = "https://financialmodelingprep.com/api/v3/income-statement/" + ticker + "?limit=120&apikey=8b7b2301a41406dc331928f7bd7e1cac"
             df = pd.read_json(url)
-            df = df.drop(['date', 'reportedCurrency', 'cik', 'fillingDate', 'acceptedDate', 'period', 'link', 'finalLink', 'symbol'], axis=1)
+            df = df.drop(
+                ['date', 'reportedCurrency', 'cik', 'fillingDate', 'acceptedDate', 'period', 'link', 'finalLink',
+                 'symbol'], axis=1)
             df_income_statement = df.set_index(['calendarYear'])
 
             # Download Financial Racios
@@ -95,7 +103,9 @@ def download_data():
             df_stock_data_detailed = fa.stock_data_detailed(ticker, api_key, begin=start_date, end="2022-12-31")
             end_date = df_stock_data_detailed.index[0]
             # Define date range
-            dates = [(datetime(int(end_date[0:4]), int(end_date[5:7]), int(end_date[8:10])) - timedelta(days=x)).strftime('%Y-%m-%d') for x in range(365 * 50)]
+            dates = [
+                (datetime(int(end_date[0:4]), int(end_date[5:7]), int(end_date[8:10])) - timedelta(days=x)).strftime(
+                    '%Y-%m-%d') for x in range(365 * 50)]
 
             # Merge prices, dates, ticker, price target and fundamentals into df_all_data
             col_names = merged_df.columns.values.tolist()
@@ -125,8 +135,8 @@ def download_data():
             df_all_data['ticker'] = ticker_list
             df_all_data['price_target'] = price_target_list
 
-            df_all_data = df_all_data.dropna(subset=['price']) # If 'price' is the only data in row, drop row
-            min_count = int(((100-50)/100)*df_all_data.shape[1]+1) # If 50% of a row is nan, drop row
+            df_all_data = df_all_data.dropna(subset=['price'])  # If 'price' is the only data in row, drop row
+            min_count = int(((100 - 50) / 100) * df_all_data.shape[1] + 1)  # If 50% of a row is nan, drop row
             df_all_data = df_all_data.dropna(axis=0, thresh=min_count)
 
             # Control if concatenation was correct and save df as csv if correct, else drop df

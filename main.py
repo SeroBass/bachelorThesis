@@ -4,19 +4,26 @@ import trader
 from ml import randomForestClassifier, ml_preprocessor
 from ml import decisionTreeClassifier, hyperParamTuning
 
-collect_data.download_data()
 
-graham_strategy.search_for_possibilities()
-trader.trade_graham_50()
+def main():
+    #collect_data.download_data()
 
-ml_preprocessor.set_target()
-ml_preprocessor.merge_all_companies()
-ml_preprocessor.clean_table()
+    #graham_strategy.search_for_possibilities()
+    #trader.trade_graham_50()
 
-hyperParamTuning.tune_dtc()
-hyperParamTuning.tune_rfc()
+    #ml_preprocessor.set_target()
+    #ml_preprocessor.merge_all_companies()
+    #ml_preprocessor.clean_table()
 
-#decisionTreeClassifier.dtc()
-#randomForestClassifier.rfc()
+    #hyperParamTuning.tune_dtc()
+    #hyperParamTuning.tune_rfc()
 
-#trader.trade_ml_50()
+    decisionTreeClassifier.dtc()
+    # randomForestClassifier.rfc()
+
+    # trader.trade_ml_50()
+
+
+if __name__ == "__main__":
+    main()
+

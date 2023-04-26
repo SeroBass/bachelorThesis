@@ -20,9 +20,6 @@ def tune_dtc():
     # Define the parameter grid to search over
     param_grid = {
         'criterion': ['gini', 'entropy'],
-        'max_depth': [2, 4, 6, 8],
-        'min_samples_split': [2, 4, 6, 8],
-        'min_samples_leaf': [1, 2, 3, 4],
         'random_state': [1, 2, 30, 42]
     }
 
