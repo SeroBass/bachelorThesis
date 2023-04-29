@@ -19,7 +19,7 @@ def dtc():
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.1, random_state=42)
 
     # Define the decision tree classifier object
-    clf = DecisionTreeClassifier()
+    clf = DecisionTreeClassifier(random_state=42)
 
     # Fit the classifier to the training data
     clf.fit(x_train, y_train)
