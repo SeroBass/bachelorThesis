@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_auc_score, average_precision_score
 from sklearn.tree import export_text
 from sklearn.tree import _tree
 import numpy as np
@@ -33,6 +33,12 @@ def dtc():
     # Compute the training and test accuracy
     train_accuracy = accuracy_score(y_train, y_train_pred)
     test_accuracy = accuracy_score(y_test, y_test_pred)
+    precision = precision_score(y_test, y_test_pred)
+    recall = recall_score(y_test, y_test_pred)
+    f1 = f1_score(y_test, y_test_pred)
+    conf_matrix = confusion_matrix(y_test, y_test_pred)
+    roc_auc = roc_auc_score(y_test, y_test_pred)
+    pr_auc = average_precision_score(y_test, y_test_pred)
 
     # Print the training and test accuracy
     print("Training Accuracy:", train_accuracy)
