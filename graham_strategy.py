@@ -1,6 +1,7 @@
 import os.path
 import pandas as pd
 
+
 def search_for_possibilities():
     print('Starting applying Graham')
 
@@ -160,12 +161,11 @@ def search_for_possibilities():
         return pb_list
 
     # Get used tickers
-    with open('data/tickers/stocks_used.txt', 'r') as f:
+    with open('logs/stocks_used.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
 
     for ticker in text:
-        print('Apply Graham Calculations on ', ticker)
         csv_name = str(ticker) + '.csv'
         df_data = pd.read_csv(os.path.join('data/financials/', csv_name), index_col=0)
 
@@ -180,7 +180,3 @@ def search_for_possibilities():
         # Save calculations by replacing old CSV with new CSV
         os.remove(os.path.join('data/financials/', csv_name))
         df_data.to_csv(os.path.join('data/financials/', csv_name), index=True, header=True)
-
-    print('Finished applying Graham')
-
-

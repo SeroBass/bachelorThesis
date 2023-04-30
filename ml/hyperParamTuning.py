@@ -19,18 +19,21 @@ def tune_dtc():
 
     # Define the parameter grid to search over
     param_grid = {
-        'criterion': ['gini', 'entropy'],
-        'random_state': [1, 2, 30, 42]
+        'criterion': ['gini', 'entropy']
     }
 
-    print('Start Hyperparameter Tuning')
     # Perform grid search cross-validation
     grid_search = GridSearchCV(dtc, param_grid, cv=5)
     grid_search.fit(X_train, y_train)
 
     # Print the best parameters and best score
-    print("Best parameters: ", grid_search.best_params_)
-    print("Best score: ", grid_search.best_score_)
+    with open('logs/decision_tree_classifier_parameters.txt', 'w') as f:
+        params = grid_search.best_params_
+        for key in params:
+            text = str(key) + ': ' + str(params[key])
+            f.write(text)
+            f.write('\n')
+
 
 def tune_rfc():
     print('Start Hyperparameter Tuning for Random Forest Classifier')
@@ -60,5 +63,10 @@ def tune_rfc():
     grid_search = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
     grid_search.fit(X_train, y_train)
 
-    # Print the best parameters
-    print("Best parameters: ", grid_search.best_params_)
+    # Save the best parameters
+    with open('logs/random_forest_classifier_parameters.txt', 'w') as f:
+        params = grid_search.best_params_
+        for key in params:
+            text = str(key) + ': ' + str(params[key])
+            f.write(text)
+            f.write('\n')

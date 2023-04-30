@@ -2,12 +2,12 @@ import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_auc_score, average_precision_score
-from sklearn.tree import export_text
 from sklearn.tree import _tree
 import numpy as np
 
 
 def dtc():
+    print('Start Decision Tree Classifier')
     # Load the data into a DataFrame called df_data
     df_data = pd.read_csv('data/financials/master.csv')
 
@@ -30,39 +30,40 @@ def dtc():
     # Make predictions on the test data
     y_test_pred = clf.predict(x_test)
 
-    # Compute the training and test accuracy
-    train_accuracy = accuracy_score(y_train, y_train_pred)
-    test_accuracy = accuracy_score(y_test, y_test_pred)
-    precision = precision_score(y_test, y_test_pred)
-    recall = recall_score(y_test, y_test_pred)
-    f1 = f1_score(y_test, y_test_pred)
-    conf_matrix = confusion_matrix(y_test, y_test_pred)
-    roc_auc = roc_auc_score(y_test, y_test_pred)
-    pr_auc = average_precision_score(y_test, y_test_pred)
+    # Measures and KPIs
+    data = {
+        'Train Accuracy': accuracy_score(y_train, y_train_pred),
+        'Test Accuracy': accuracy_score(y_test, y_test_pred),
+        'Precision': precision_score(y_test, y_test_pred),
+        'Recall': recall_score(y_test, y_test_pred),
+        'F1': f1_score(y_test, y_test_pred),
+        'Confusion Matrix': confusion_matrix(y_test, y_test_pred),
+        'ROC AUC': roc_auc_score(y_test, y_test_pred),
+        'PR AUC': average_precision_score(y_test, y_test_pred)
+    }
 
-    # Print the training and test accuracy
-    print("Training Accuracy:", train_accuracy)
-    print("Test Accuracy:", test_accuracy)
+    # Save measures/KPIs in text file
+    with open('logs/decision_tree_classifier_measures.txt', 'w') as f:
+        for key in data:
+            text = str(key) + ': ' + str(data[key])
+            f.write(text)
+            f.write('\n')
 
-    # Evaluate the performance of the classifier
-    #accuracy = accuracy_score(y_test, y_pred)
-    #precision = precision_score(y_test, y_pred)
-    #recall = recall_score(y_test, y_pred)
-    #f1 = f1_score(y_test, y_pred)
-    #print("Accuracy:", accuracy)
-    #print("Precision:", precision)
-    #print("Recall:", recall)
-    #print("F1 Score:", f1)
-
+    # Extract rules of Decision Tree Classifier
     rules = get_rules(clf, list(x_train.columns), ['1', '-1'])
-
     i = 1
-    for r in rules:
-        if "then class: -1 (proba: 100.0%)" in r and i <= 10:
-            print(r)
-            i = i + 1
+    with open('logs/decision_tree_classifier_rules.txt', 'w') as f:
+        for r in rules:
+            if "then class: -1 (proba: 100.0%)" in r and i <= 10:
+                f.write(r)
+                f.write('\n')
+                i = i + 1
+
 
 def get_rules(tree, feature_names, class_names):
+    # Source:
+    # https://stackoverflow.com/questions/20224526/how-to-extract-the-decision-rules-from-scikit-learn-decision-tree
+    # Date: 30.04.2023, 00:55
     tree_ = tree.tree_
     feature_name = [
         feature_names[i] if i != _tree.TREE_UNDEFINED else "undefined!"
