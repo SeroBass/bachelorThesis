@@ -5,6 +5,9 @@ import pandas as pd
 import numpy as np
 import os
 import os.path
+import requests
+from urllib.request import urlopen
+import json
 
 
 def download_data():
@@ -13,10 +16,18 @@ def download_data():
     # your Financial Modeling Prep API key
     api_key = "8b7b2301a41406dc331928f7bd7e1cac"
 
-    # Prepare directory
+    # Prepare directories
     if os.path.exists('data/financials') == True:
         shutil.rmtree('data/financials')
     os.mkdir('data/financials')
+
+    if os.path.exists('data/dividends') == True:
+        shutil.rmtree('data/dividends')
+    os.mkdir('data/dividends')
+
+    #if os.path.exists('data/stock_splits') == True:
+    #    shutil.rmtree('data/stock_splits')
+    #os.mkdir('data/stock_splits')
 
     # define date range and save daily dates
     df_all_tickers = pd.read_json(
@@ -56,8 +67,19 @@ def download_data():
     for ticker in ticker_list:
         csv_name = str(ticker) + '.csv'
         try:
+            # Download Historical Dividends
+            url = "https://financialmodelingprep.com/api/v3/historical-price-full/stock_dividend/" + ticker + "?apikey=" + api_key
+            response = urlopen(url)
+            data = response.read().decode("utf-8")
+            data_json = json.loads(data)['historical']
+            df = pd.DataFrame(data_json)
+            df = df.drop(['label', 'adjDividend', 'date', 'recordDate', 'declarationDate'], axis=1)
+            df.replace('', np.nan, inplace=True)
+            df = df.dropna(subset=['paymentDate'])
+            df.to_csv(os.path.join('data/dividends/', csv_name), index=False, header=True)
+
             # Download Balance Sheet
-            url = "https://financialmodelingprep.com/api/v3/balance-sheet-statement/" + ticker + "?limit=120&apikey=8b7b2301a41406dc331928f7bd7e1cac"
+            url = "https://financialmodelingprep.com/api/v3/balance-sheet-statement/" + ticker + "?limit=120&apikey=" + api_key
             df = pd.read_json(url)
             df = df.drop(
                 ['date', 'reportedCurrency', 'cik', 'fillingDate', 'acceptedDate', 'period', 'link', 'finalLink',
@@ -65,7 +87,7 @@ def download_data():
             df_balance_sheet = df.set_index(['calendarYear'])
 
             # Download Cash Flow Statement
-            url = "https://financialmodelingprep.com/api/v3/cash-flow-statement/" + ticker + "?limit=120&apikey=8b7b2301a41406dc331928f7bd7e1cac"
+            url = "https://financialmodelingprep.com/api/v3/cash-flow-statement/" + ticker + "?limit=120&apikey=" + api_key
             df = pd.read_json(url)
             df = df.drop(
                 ['date', 'reportedCurrency', 'cik', 'fillingDate', 'acceptedDate', 'period', 'link', 'finalLink',
@@ -73,7 +95,7 @@ def download_data():
             df_cashflow_statement = df.set_index(['calendarYear'])
 
             # Download Income Statement
-            url = "https://financialmodelingprep.com/api/v3/income-statement/" + ticker + "?limit=120&apikey=8b7b2301a41406dc331928f7bd7e1cac"
+            url = "https://financialmodelingprep.com/api/v3/income-statement/" + ticker + "?limit=120&apikey=" + api_key
             df = pd.read_json(url)
             df = df.drop(
                 ['date', 'reportedCurrency', 'cik', 'fillingDate', 'acceptedDate', 'period', 'link', 'finalLink',
@@ -81,14 +103,14 @@ def download_data():
             df_income_statement = df.set_index(['calendarYear'])
 
             # Download Financial Racios
-            url = "https://financialmodelingprep.com/api/v3/ratios/" + ticker + "?limit=40&apikey=8b7b2301a41406dc331928f7bd7e1cac"
+            url = "https://financialmodelingprep.com/api/v3/ratios/" + ticker + "?limit=40&apikey=" + api_key
             df = pd.read_json(url)
             df['calendarYear'] = pd.DatetimeIndex(df['date']).year
             df = df.drop(['period', 'date', 'symbol'], axis=1)
             df_ratios = df.set_index(['calendarYear'])
 
             # Download Financial Key Metrics
-            url = "https://financialmodelingprep.com/api/v3/key-metrics/" + ticker + "?limit=40&apikey=8b7b2301a41406dc331928f7bd7e1cac"
+            url = "https://financialmodelingprep.com/api/v3/key-metrics/" + ticker + "?limit=40&apikey=" + api_key
             df = pd.read_json(url)
             df['calendarYear'] = pd.DatetimeIndex(df['date']).year
             df = df.drop(['period', 'date', 'symbol'], axis=1)
