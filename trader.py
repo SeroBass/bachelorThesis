@@ -22,7 +22,7 @@ def trade_graham_50():
         'exit_date': [],
         'exit_price': [],
         'holding_days': [],
-        'pnl (%)': []
+        'dividends_paid_per_share': []
     }
     df_transaction_history = pd.DataFrame(data=data)
 
@@ -35,6 +35,7 @@ def trade_graham_50():
         csv_name = str(ticker) + '.csv'
         path = os.path.join('data/financials', csv_name)
         possibilities = (pd.read_csv(path, index_col=0)).iloc[::-1]
+        dividend_history = pd.read_csv(os.path.join('data/dividends', csv_name)).set_index('paymentDate')
 
         entry_price = 0
         price_target = 0
@@ -42,6 +43,7 @@ def trade_graham_50():
         entry_date = ""
         last_day = ""
         last_price = 0
+        dividends_paid_per_share = 0
 
         for index, row in possibilities.iterrows():
             # open position according Grahams Defensive Principles
@@ -62,11 +64,16 @@ def trade_graham_50():
                 entry_price = row['price']
                 price_target = row['price_target']
 
+            # Check for Dividends
+            if position_is_open == 1:
+                for index_div, row_div in dividend_history.iterrows():
+                    if index == index_div:
+                        dividends_paid_per_share = dividends_paid_per_share + float(row_div['dividend'])
+
             # close position when gain > +50%
             if row['price'] > price_target and position_is_open == 1:
                 exit_date = index
                 exit_price = row['price']
-                pnl = (100 / entry_price*exit_price) - 100
                 position_is_open = 0
 
                 new_position = pd.Series({
@@ -78,7 +85,7 @@ def trade_graham_50():
                     'exit_date': exit_date,
                     'exit_price': exit_price,
                     'holding_days': date(int(exit_date[0:4]), int(exit_date[5:7]), int(exit_date[8:10])) - date(int(entry_date[0:4]), int(entry_date[5:7]), int(entry_date[8:10])),
-                    'pnl (%)': pnl
+                    'dividends_paid_per_share': dividends_paid_per_share
                 })
                 df_transaction_history = pd.concat([df_transaction_history, new_position.to_frame().T], ignore_index=True)
                 entry_price = 0
@@ -99,10 +106,10 @@ def trade_graham_50():
                 'exit_date': last_day,
                 'exit_price': last_price,
                 'holding_days': date(int(last_day[0:4]), int(last_day[5:7]), int(last_day[8:10])) - date(int(entry_date[0:4]), int(entry_date[5:7]), int(entry_date[8:10])),
-                'pnl (%)': (100/entry_price*last_price)-100
+                'dividends_paid_per_share': dividends_paid_per_share
             })
             df_transaction_history = pd.concat([df_transaction_history, new_position.to_frame().T], ignore_index=True)
-    df_transaction_history.to_csv('data/backtesting/transaction_history_graham_50.csv')
+    df_transaction_history.to_csv('data/backtesting/transaction_history_graham_50.csv', index=False, header=True)
 
 
 def trade_ml_50():
@@ -123,7 +130,7 @@ def trade_ml_50():
         'exit_date': [],
         'exit_price': [],
         'holding_days': [],
-        'pnl (%)': []
+        'dividends_paid_per_share': []
     }
     df_transaction_history = pd.DataFrame(data=data)
 
@@ -136,6 +143,7 @@ def trade_ml_50():
         csv_name = str(ticker) + '.csv'
         path = os.path.join('data/financials', csv_name)
         possibilities = pd.read_csv(path, index_col=0)
+        dividend_history = pd.read_csv(os.path.join('data/dividends', csv_name)).set_index('paymentDate')
 
         entry_price = 0
         price_target = 0
@@ -143,6 +151,7 @@ def trade_ml_50():
         entry_date = ""
         last_day = ""
         last_price = 0
+        dividends_paid_per_share = 0
 
         for index, row in possibilities.iterrows():
             # open position according Decision Tree Classifier Principles
@@ -385,11 +394,16 @@ def trade_ml_50():
                 entry_price = row['price']
                 price_target = row['price_target']
 
+            # Check for Dividends
+            if position_is_open == 1:
+                for index_div, row_div in dividend_history.iterrows():
+                    if index == index_div:
+                        dividends_paid_per_share = dividends_paid_per_share + float(row_div['dividend'])
+
             # close position when gain > +50%
             if row['price'] > price_target and position_is_open == 1:
                 exit_date = index
                 exit_price = row['price']
-                pnl = (100 / entry_price * exit_price) - 100
                 position_is_open = 0
 
                 new_position = pd.Series({
@@ -401,7 +415,7 @@ def trade_ml_50():
                     'exit_date': exit_date,
                     'exit_price': exit_price,
                     'holding_days': date(int(exit_date[0:4]), int(exit_date[5:7]), int(exit_date[8:10])) - date(int(entry_date[0:4]), int(entry_date[5:7]), int(entry_date[8:10])),
-                    'pnl (%)': pnl
+                    'dividends_paid_per_share': dividends_paid_per_share
                 })
                 df_transaction_history = pd.concat([df_transaction_history, new_position.to_frame().T], ignore_index=True)
                 entry_price = 0
@@ -421,7 +435,8 @@ def trade_ml_50():
                 'goal_price': price_target,
                 'exit_date': last_day,
                 'exit_price': last_price,
-                'holding_days': date(int(last_day[0:4]), int(last_day[5:7]), int(last_day[8:10])) - date(int(entry_date[0:4]), int(entry_date[5:7]), int(entry_date[8:10])), 'pnl (%)': (100 / entry_price * last_price) - 100
+                'holding_days': date(int(last_day[0:4]), int(last_day[5:7]), int(last_day[8:10])) - date(int(entry_date[0:4]), int(entry_date[5:7]), int(entry_date[8:10])),
+                'dividends_paid_per_share': dividends_paid_per_share
             })
             df_transaction_history = pd.concat([df_transaction_history, new_position.to_frame().T], ignore_index=True)
-    df_transaction_history.to_csv('data/backtesting/transaction_history_ml_50.csv')
+    df_transaction_history.to_csv('data/backtesting/transaction_history_ml_50.csv', index=False, header=True)
