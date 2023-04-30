@@ -50,7 +50,7 @@ def download_data():
         elif len(matching_values) == 0 and len(check.index) == 0:
             dead_tickers_list.append(element)
         else:
-            print('other cond exists')
+            a = 0
 
     i = 0
     for ticker in ticker_list:
@@ -148,25 +148,25 @@ def download_data():
             ):
                 df_all_data.to_csv(os.path.join('data/financials/', csv_name), index=True, header=True)
                 used_tickers_list.append(ticker)
-                print('Successfull: ' + ticker)
             else:
-                print('Drop ticker because of year indiscrepancy: ' + ticker)
                 dead_tickers_list.append(ticker)
                 i = i + 1
         except:
-            print("Company not found: " + ticker)
             dead_tickers_list.append(ticker)
 
+    # Prepare directory
+    if os.path.exists('logs') == True:
+        shutil.rmtree('logs')
+    os.mkdir('logs')
+
     # Save used tickers into txt file
-    with open('data/tickers/stocks_used.txt', 'w') as f:
+    with open('logs/stocks_used.txt', 'w') as f:
         for line in used_tickers_list:
             f.write(line)
             f.write('\n')
 
     # Save droped tickers into txt file
-    with open('data/tickers/stocks_not_used.txt', 'w') as f:
+    with open('logs/stocks_not_used.txt', 'w') as f:
         for line in dead_tickers_list:
             f.write(line)
             f.write('\n')
-
-    print("Finished collecting data.")

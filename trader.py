@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import os.path
 
+
 def trade_graham_50():
     # Strategy based on Graham Principles
     # Target = Entry-Price * 1.5 (therefore 50% gain)
@@ -26,7 +27,7 @@ def trade_graham_50():
     df_transaction_history = pd.DataFrame(data=data)
 
     # get tickers
-    with open('data/tickers/stocks_used.txt', 'r') as f:
+    with open('logs/stocks_used.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
 
@@ -102,7 +103,7 @@ def trade_graham_50():
             })
             df_transaction_history = pd.concat([df_transaction_history, new_position.to_frame().T], ignore_index=True)
     df_transaction_history.to_csv('data/backtesting/transaction_history_graham_50.csv')
-    print('Finished Backtesting')
+
 
 def trade_ml_50():
     # Strategy based on Decision Tree Classifier
@@ -127,7 +128,7 @@ def trade_ml_50():
     df_transaction_history = pd.DataFrame(data=data)
 
     # get tickers
-    with open('data/tickers/stocks_used.txt', 'r') as f:
+    with open('logs/stocks_used.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
 
@@ -424,4 +425,3 @@ def trade_ml_50():
             })
             df_transaction_history = pd.concat([df_transaction_history, new_position.to_frame().T], ignore_index=True)
     df_transaction_history.to_csv('data/backtesting/transaction_history_ml_50.csv')
-    print('Finished Backtesting ML')

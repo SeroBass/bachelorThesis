@@ -3,10 +3,10 @@ import os
 import os.path
 import numpy as np
 
+
 def set_target():
     print('Setting target for ML strategy')
-
-    with open('data/tickers/stocks_used.txt', 'r') as f:
+    with open('logs/stocks_used.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
 
@@ -32,9 +32,10 @@ def set_target():
         os.remove(os.path.join('data/financials/', csv_name))
         df_stock_fund.to_csv(os.path.join('data/financials/', csv_name), index=True, header=True)
 
+
 def merge_all_companies():
     print('Merging all dataframes')
-    with open('data/tickers/stocks_used.txt', 'r') as f:
+    with open('logs/stocks_used.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
 
@@ -48,14 +49,13 @@ def merge_all_companies():
             df_merge_candidate = pd.read_csv(os.path.join('data/financials', csv_name))
             df_start = pd.concat([df_merge_candidate, df_start], ignore_index=True)
         except:
-            print('No company left')
+            a = 0
         i = i + 1
 
     df_start.rename(columns={'Unnamed: 0': 'date'}, inplace=True)
-    #df_start = df_start[df_start['date'].str.contains('2023|2022') == False]
     df_start = df_start.drop(['date'], axis=1)
     df_start.to_csv('data/financials/master.csv', index=False, header=True)
-    print('Finished merging. Length of index: ', len(df_start.index))
+
 
 def clean_table():
     print('Start cleaning master dataframe')
@@ -69,11 +69,8 @@ def clean_table():
     df_master = df_master.replace(np.inf, 10000000000.0)
     df_master = df_master.replace(-np.inf, -10000000000.0)
 
-    print('Amount of data: ', df_master.size)
-    print('Amount of nan: ', df_master.isna().sum().sum())
-    print('% of nan: ', 100/df_master.size*df_master.isna().sum().sum())
+    percent_nan = 100/df_master.size*df_master.isna().sum().sum()
 
-    print('Removing columns and rows with more than 20% nan')
     count = 0
     for col_name in list(df_master.columns):
         try:
@@ -87,11 +84,21 @@ def clean_table():
     min_count = int(((100 - 20) / 100) * df_master.shape[1] + 1)
     df_master = df_master.dropna(axis=0, thresh=min_count)
 
-    print('Removed ', len_before - len(df_master), ' rows')
-    print('Removed ', count, ' columns')
+    data = {
+        'Initial percent of nan of total data': percent_nan,
+        'Removed columns if more than 20% nan': count,
+        'Removed rows if more than 20% nan': len_before - len(df_master),
+        'Amount of nan replaced with 0.0': df_master.isna().sum().sum(),
+        'Amount of rows': len(df_master),
+        'Amount of cols': len(list(df_master.columns))
+    }
 
-    print('% of nan: ', 100 / df_master.size * df_master.isna().sum().sum())
-    print('Replacing nan with 0.0')
+    with open('logs/cleaned_table.txt', 'w') as f:
+        for key in data:
+            text = str(key) + ': ' + str(data[key])
+            f.write(text)
+            f.write('\n')
+
     df_master = df_master.fillna(0.0)
     os.remove('data/financials/master.csv')
     df_master.to_csv('data/financials/master.csv', index=True, header=True)
