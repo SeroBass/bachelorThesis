@@ -6,6 +6,26 @@ import numpy as np
 
 def set_target():
     print('Setting target for ML strategy')
+
+    transaction_history_graham_20 = pd.read_csv('data/backtesting/transaction_history_graham_20.csv')
+    factors_list_20 = []
+    for index, row in transaction_history_graham_20.iterrows():
+        factors_list_20.append(row['highest_price']/row['entry_price'])
+
+    transaction_history_graham_10 = pd.read_csv('data/backtesting/transaction_history_graham_10.csv')
+    factors_list_10 = []
+    for index, row in transaction_history_graham_10.iterrows():
+        factors_list_10.append(row['highest_price']/row['entry_price'])
+
+    mean_20 = sum(factors_list_20)/len(factors_list_20)
+    mean_10 = sum(factors_list_10)/len(factors_list_10)
+
+    ml_target = 0
+    if mean_20 > mean_10:
+        ml_target = mean_20 * 1.01
+    else:
+        ml_target = mean_10 * 1.01
+
     with open('logs/stocks_used.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
@@ -18,7 +38,7 @@ def set_target():
         goal_reached_list = []
 
         for index, row in df_stock_fund.iterrows():
-            goal_price = row['price_target']
+            goal_price = row['price'] * ml_target
             df_search_goal = df_stock_fund.drop(df_stock_fund.index[0:iteration_start_at], inplace=False)
             col = df_search_goal['price']
             count = col[col > goal_price].count()

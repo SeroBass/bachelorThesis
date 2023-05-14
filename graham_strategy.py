@@ -71,7 +71,7 @@ def search_for_possibilities():
 
     # Criteria:
     # Continious dividends the last 10 years (not 20 years because not enough data)
-    def dividend_stability(df_data):
+    def dividend_10_stability(df_data):
         dividend_stability_list = []
         years_list = []
         yearly_divs_dict = {}
@@ -90,6 +90,34 @@ def search_for_possibilities():
                         div_is_paid = div_is_paid + 1
                     i = i + 1
                 if div_is_paid == 10:
+                    dividend_stability_list.append(1)
+                else:
+                    dividend_stability_list.append(-1)
+            except:
+                dividend_stability_list.append(0)
+        return dividend_stability_list
+
+    # Criteria:
+    # Continious dividends the last 20 years
+    def dividend_20_stability(df_data):
+        dividend_stability_list = []
+        years_list = []
+        yearly_divs_dict = {}
+        for index, row in df_data.iterrows():
+            if int(index[0:4]) not in years_list:
+                yearly_divs_dict[int(index[0:4])] = df_data.loc[index]['dividendsPaid']
+                years_list.append(int(index[0:4]))
+
+        for index, row in df_data.iterrows():
+            year = int(index[0:4])
+            i = 0
+            div_is_paid = 0
+            try:
+                while i < 20:
+                    if yearly_divs_dict[year - i] < 0:
+                        div_is_paid = div_is_paid + 1
+                    i = i + 1
+                if div_is_paid == 20:
                     dividend_stability_list.append(1)
                 else:
                     dividend_stability_list.append(-1)
@@ -172,7 +200,8 @@ def search_for_possibilities():
         # Call functions for Graham evaluation
         df_data['grahams_financial_strength_decision'] = financial_strength(df_data)
         df_data['grahams_earnings_stability_decision'] = earnings_stability(df_data)
-        df_data['grahams_dividend_stability_decision'] = dividend_stability(df_data)
+        df_data['grahams_10_dividend_stability_decision'] = dividend_10_stability(df_data)
+        df_data['grahams_20_dividend_stability_decision'] = dividend_20_stability(df_data)
         df_data['grahams_earnings_growth_decision'] = earnings_growth(df_data)
         df_data['grahams_pe'] = pe(df_data)
         df_data['grahams_pb'] = pb(df_data)

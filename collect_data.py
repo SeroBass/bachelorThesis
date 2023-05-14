@@ -35,10 +35,12 @@ def download_data():
     ticker_list = []
     dead_tickers_list = []
     used_tickers_list = []
+    years_length_list = []
+    used_tickers_length_list = []
 
     # get tickers
     # source: https://www.teletrader.com/stoxx-europe-600-eur-price/index/tts-730376 08.04.2023 19:06
-    with open('data/tickers/US_short.txt', 'r') as f:
+    with open('data/tickers/stoxx_europe_600.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
 
@@ -68,15 +70,15 @@ def download_data():
         csv_name = str(ticker) + '.csv'
         try:
             # Download Historical Dividends
-            url = "https://financialmodelingprep.com/api/v3/historical-price-full/stock_dividend/" + ticker + "?apikey=" + api_key
-            response = urlopen(url)
-            data = response.read().decode("utf-8")
-            data_json = json.loads(data)['historical']
-            df = pd.DataFrame(data_json)
-            df = df.drop(['label', 'adjDividend', 'date', 'recordDate', 'declarationDate'], axis=1)
-            df.replace('', np.nan, inplace=True)
-            df = df.dropna(subset=['paymentDate'])
-            df.to_csv(os.path.join('data/dividends/', csv_name), index=False, header=True)
+            # url = "https://financialmodelingprep.com/api/v3/historical-price-full/stock_dividend/" + ticker + "?apikey=" + api_key
+            # response = urlopen(url)
+            # data = response.read().decode("utf-8")
+            # data_json = json.loads(data)['historical']
+            # df = pd.DataFrame(data_json)
+            # df = df.drop(['label', 'adjDividend', 'date', 'recordDate', 'declarationDate'], axis=1)
+            # df.replace('', np.nan, inplace=True)
+            # df = df.dropna(subset=['paymentDate'])
+            # df.to_csv(os.path.join('data/dividends/', csv_name), index=False, header=True)
 
             # Download Balance Sheet
             url = "https://financialmodelingprep.com/api/v3/balance-sheet-statement/" + ticker + "?limit=120&apikey=" + api_key
@@ -119,6 +121,9 @@ def download_data():
             # Merge downloaded fundamentals into one df
             frames = [df_balance_sheet, df_cashflow_statement, df_ratios, df_income_statement, df_key_metrics]
             merged_df = pd.concat(frames, axis=1)
+            years_length_list.append(len(merged_df.index))
+            if len(merged_df.index) < 11:
+                print(ticker, ': ', len(merged_df.index), ' years')
 
             # Download price data
             start_date = str(merged_df.index[-1]) + "-01-01"
@@ -139,13 +144,13 @@ def download_data():
             for index, row in df_all_data.iterrows():
                 try:
                     price = df_stock_data_detailed.loc[index]['close']
-                    price_target = float(price) * 1.5
+                    #price_target = float(price) * 1.5
                 except:
                     price = np.nan
-                    price_target = np.nan
+                    #price_target = np.nan
                 price_list.append(price)
                 ticker_list.append(ticker)
-                price_target_list.append(price_target)
+                #price_target_list.append(price_target)
 
                 try:
                     df_all_data.loc[index] = merged_df.loc[int(index[0:4]) - 1]
@@ -155,20 +160,21 @@ def download_data():
             # Add price, ticker and price target to df
             df_all_data['price'] = price_list
             df_all_data['ticker'] = ticker_list
-            df_all_data['price_target'] = price_target_list
+            #df_all_data['price_target'] = price_target_list
 
             df_all_data = df_all_data.dropna(subset=['price'])  # If 'price' is the only data in row, drop row
             min_count = int(((100 - 50) / 100) * df_all_data.shape[1] + 1)  # If 50% of a row is nan, drop row
             df_all_data = df_all_data.dropna(axis=0, thresh=min_count)
 
             # Control if concatenation was correct and save df as csv if correct, else drop df
-            if (
+            if len(merged_df.index) > 10 and (
                     df_balance_sheet.index[0] == df_cashflow_statement.index[0] and
                     df_cashflow_statement.index[0] == df_income_statement.index[0] and
                     df_income_statement.index[0] == df_ratios.index[0] and
                     df_ratios.index[0] == df_key_metrics.index[0]
             ):
                 df_all_data.to_csv(os.path.join('data/financials/', csv_name), index=True, header=True)
+                used_tickers_length_list.append(len(merged_df.index))
                 used_tickers_list.append(ticker)
             else:
                 dead_tickers_list.append(ticker)
@@ -192,3 +198,17 @@ def download_data():
         for line in dead_tickers_list:
             f.write(line)
             f.write('\n')
+
+    years_length_list.sort()
+    print('Raw: Mean amount of years: ', sum(years_length_list)/len(years_length_list))  # mean
+    print('Raw: Median of the years: ', years_length_list[int(len(years_length_list)/2)])  # median
+    print('Raw: Smallest amount of years: ', years_length_list[0])  # Min
+    print('Raw: Highest amount of years: ', years_length_list[-1])  # Max
+    print('Raw: Amount of companies: ', len(years_length_list))
+
+    used_tickers_length_list.sort()
+    print('Cleaned: Mean amount of years: ', sum(used_tickers_length_list) / len(used_tickers_length_list))  # mean
+    print('Cleaned: Median of the years: ', used_tickers_length_list[int(len(used_tickers_length_list) / 2)])  # median
+    print('Cleaned: Smallest amount of years: ', used_tickers_length_list[0])  # Min
+    print('Cleaned: Highest amount of years: ', used_tickers_length_list[-1])  # Max
+    print('Cleaned: Amount of companies: ', len(used_tickers_length_list))
