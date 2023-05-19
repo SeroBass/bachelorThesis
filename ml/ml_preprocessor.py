@@ -7,6 +7,7 @@ import numpy as np
 def set_target():
     print('Setting target for ML strategy')
 
+    # Load transaction histories of Graham 20 and Graham 10 strategies and calculate factors
     transaction_history_graham_20 = pd.read_csv('data/backtesting/transaction_history_graham_20.csv')
     factors_list_20 = []
     for index, row in transaction_history_graham_20.iterrows():
@@ -17,22 +18,22 @@ def set_target():
     for index, row in transaction_history_graham_10.iterrows():
         factors_list_10.append(row['highest_price']/row['entry_price'])
 
+    # Calculate mean of both strategy factors and get the better strategy
     mean_20 = sum(factors_list_20)/len(factors_list_20)
     mean_10 = sum(factors_list_10)/len(factors_list_10)
-
     ml_target = 0
     if mean_20 > mean_10:
         ml_target = mean_20 * 1.01
     else:
         ml_target = mean_10 * 1.01
 
+    # Calculate the target and decide if reached, save file
     with open('logs/stocks_used.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
 
     for ticker in text:
         csv_name = str(ticker) + '.csv'
-
         df_stock_fund = (pd.read_csv(os.path.join('data/financials/', csv_name), index_col=0)).iloc[::-1]
         iteration_start_at = 0
         goal_reached_list = []
@@ -55,6 +56,8 @@ def set_target():
 
 def merge_all_companies():
     print('Merging all dataframes')
+
+    # Merge used companies into one master file
     with open('logs/stocks_used.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
@@ -81,6 +84,7 @@ def clean_table():
     print('Start cleaning master dataframe')
     df_master = pd.read_csv('data/financials/master.csv', index_col=0)
 
+    # If some kind of zero, replace with nan
     df_master = df_master.replace(0.0, np.nan)
     df_master = df_master.replace(0, np.nan)
     df_master = df_master.replace('0.0', np.nan)
@@ -95,14 +99,14 @@ def clean_table():
     for col_name in list(df_master.columns):
         try:
             if 100 / len(df_master.index) * df_master[col_name].isna().sum() > 20:
-                df_master = df_master.drop([col_name], axis=1)
+                df_master = df_master.drop([col_name], axis=1)  # Drop column if more than 20 % nan
                 count = count + 1
         except:
             continue
 
     len_before = len(df_master)
     min_count = int(((100 - 20) / 100) * df_master.shape[1] + 1)
-    df_master = df_master.dropna(axis=0, thresh=min_count)
+    df_master = df_master.dropna(axis=0, thresh=min_count)  # Drop row if more than 20 % nan
 
     data = {
         'Initial percent of nan of total data': percent_nan,
@@ -119,6 +123,7 @@ def clean_table():
             f.write(text)
             f.write('\n')
 
+    # Replace all nan's with 0.0 for further calculations
     df_master = df_master.fillna(0.0)
     os.remove('data/financials/master.csv')
     df_master.to_csv('data/financials/master.csv', index=True, header=True)

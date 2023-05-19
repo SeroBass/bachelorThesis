@@ -8,6 +8,8 @@ def trade_graham_20():
     # Strategy based on Graham Principles
     # Dividend criteria: 20 years
     print('Backtesting Grahams Strategy (20)')
+
+    # Prepare directory
     if os.path.exists('data/backtesting/transaction_history_graham_20.csv') == True:
         os.remove('data/backtesting/transaction_history_graham_20.csv')
     if os.path.exists('data/backtesting') == False:
@@ -36,7 +38,7 @@ def trade_graham_20():
     for ticker in text:
         csv_name = str(ticker) + '.csv'
         path = os.path.join('data/financials', csv_name)
-        possibilities = (pd.read_csv(path, index_col=0)) #.iloc[::-1]
+        possibilities = (pd.read_csv(path, index_col=0)).iloc[::-1]
 
         entry_price = 0
         position_is_open = 0
@@ -63,6 +65,7 @@ def trade_graham_20():
                 entry_date = index
                 entry_price = row['price']
 
+            # Check for highest price
             if float(row['price']) > float(highest_price) and position_is_open == 1:
                 highest_price = float(row['price'])
                 highest_date = index
@@ -95,6 +98,8 @@ def trade_graham_10():
     # Strategy based on Graham Principles
     # Dividend criteria: 10 years
     print('Backtesting Grahams Strategy (10)')
+
+    # Prepare directory
     if os.path.exists('data/backtesting/transaction_history_graham_10.csv') == True:
         os.remove('data/backtesting/transaction_history_graham_10.csv')
     if os.path.exists('data/backtesting') == False:
@@ -123,7 +128,7 @@ def trade_graham_10():
     for ticker in text:
         csv_name = str(ticker) + '.csv'
         path = os.path.join('data/financials', csv_name)
-        possibilities = (pd.read_csv(path, index_col=0)) #.iloc[::-1]
+        possibilities = (pd.read_csv(path, index_col=0)).iloc[::-1]
 
         entry_price = 0
         position_is_open = 0
@@ -150,6 +155,7 @@ def trade_graham_10():
                 entry_date = index
                 entry_price = row['price']
 
+            # Check for highest price
             if float(row['price']) > float(highest_price) and position_is_open == 1:
                 highest_price = float(row['price'])
                 highest_date = index
@@ -182,6 +188,8 @@ def trade_graham_10():
 def trade_ml():
     # Strategy based on Decision Tree Classifier
     print('Backtesting ML Strategy')
+
+    # Prepare directory
     if os.path.exists('data/backtesting/transaction_history_ml.csv') == True:
         os.remove('data/backtesting/transaction_history_ml.csv')
     if os.path.exists('data/backtesting') == False:
@@ -366,6 +374,7 @@ def trade_ml():
                 entry_date = index
                 entry_price = row['price']
 
+            # Check for highest price
             if float(row['price']) > float(highest_price) and position_is_open == 1:
                 highest_price = float(row['price'])
                 highest_date = index

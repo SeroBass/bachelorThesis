@@ -8,29 +8,20 @@ import numpy as np
 
 def dtc():
     print('Start Decision Tree Classifier')
-    # Load the data into a DataFrame called df_data
-    df_data = pd.read_csv('data/financials/master.csv')
 
-    # Assign the features to x and the target variable to y
+    # Load master file, assign the features and split data 90-10
+    df_data = pd.read_csv('data/financials/master.csv')
     x = df_data.drop(['ml_goal_reached', 'ticker', 'price'], axis=1)
     y = df_data['ml_goal_reached']
-
-    # Split the data into training and testing sets with a 80-20 split
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.1, random_state=42)
 
-    # Define the decision tree classifier object
+    # Define the decision tree classifier object, fit the classifier, predict train and test data
     clf = DecisionTreeClassifier(criterion='entropy', max_depth=20, min_samples_leaf=5, random_state=42)
-
-    # Fit the classifier to the training data
     clf.fit(x_train, y_train)
-
-    # Make predictions on the training data
     y_train_pred = clf.predict(x_train)
-
-    # Make predictions on the test data
     y_test_pred = clf.predict(x_test)
 
-    # Measures and KPIs
+    # Save measures/KPIs in text file
     data = {
         'Train Accuracy': accuracy_score(y_train, y_train_pred),
         'Test Accuracy': accuracy_score(y_test, y_test_pred),
@@ -41,8 +32,6 @@ def dtc():
         'ROC AUC': roc_auc_score(y_test, y_test_pred),
         'PR AUC': average_precision_score(y_test, y_test_pred)
     }
-
-    # Save measures/KPIs in text file
     with open('logs/decision_tree_classifier_measures.txt', 'w') as f:
         for key in data:
             text = str(key) + ': ' + str(data[key])
