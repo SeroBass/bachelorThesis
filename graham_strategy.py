@@ -7,7 +7,7 @@ def search_for_possibilities():
 
     # Criteria:
     # (Current Ratio > 2) and
-    # (total non-current liabilities < working capital or < net current asset value)
+    # (total non-current liabilities < working capital or total non-current liabilities < net current asset value)
     def financial_strength(df_data):
         financial_strength_list = []
         years_list = []
@@ -126,7 +126,7 @@ def search_for_possibilities():
         return dividend_stability_list
 
     # Criteria:
-    # mean EPS of last 3 years must be +33% than mean EPS of first 3 years
+    # mean EPS of last 3 years must be +33% than mean EPS of first 3 years (total 10 years)
     def earnings_growth(df_data):
         earnings_growth_list = []
         years_list = []

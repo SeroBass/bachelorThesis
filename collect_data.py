@@ -5,15 +5,12 @@ import pandas as pd
 import numpy as np
 import os
 import os.path
-import requests
-from urllib.request import urlopen
-import json
 
 
 def download_data():
     print('Start downloading data')
 
-    # your Financial Modeling Prep API key
+    # Financial Modeling Prep (FMP) API key
     api_key = "8b7b2301a41406dc331928f7bd7e1cac"
 
     # Prepare directories
@@ -25,11 +22,7 @@ def download_data():
         shutil.rmtree('data/dividends')
     os.mkdir('data/dividends')
 
-    #if os.path.exists('data/stock_splits') == True:
-    #    shutil.rmtree('data/stock_splits')
-    #os.mkdir('data/stock_splits')
-
-    # define date range and save daily dates
+    # Get all available tickers from FMP API
     df_all_tickers = pd.read_json(
         "https://financialmodelingprep.com/api/v3/financial-statement-symbol-lists?apikey=" + api_key)
     ticker_list = []
@@ -38,13 +31,13 @@ def download_data():
     years_length_list = []
     used_tickers_length_list = []
 
-    # get tickers
+    # Load Stoxx Europe 600 tickers
     # source: https://www.teletrader.com/stoxx-europe-600-eur-price/index/tts-730376 08.04.2023 19:06
     with open('data/tickers/stoxx_europe_600.txt', 'r') as f:
         text = f.readlines()
         text = [t.strip() for t in text]
 
-    # Check if ticker is available at financial modeling prep
+    # Check if tickers are available at financial modeling prep
     for element in text:
         if '/' in element:
             element = element[0:element.index('/')]
@@ -65,21 +58,11 @@ def download_data():
         else:
             a = 0
 
+    # Start downloading data per ticker
     i = 0
     for ticker in ticker_list:
         csv_name = str(ticker) + '.csv'
         try:
-            # Download Historical Dividends
-            # url = "https://financialmodelingprep.com/api/v3/historical-price-full/stock_dividend/" + ticker + "?apikey=" + api_key
-            # response = urlopen(url)
-            # data = response.read().decode("utf-8")
-            # data_json = json.loads(data)['historical']
-            # df = pd.DataFrame(data_json)
-            # df = df.drop(['label', 'adjDividend', 'date', 'recordDate', 'declarationDate'], axis=1)
-            # df.replace('', np.nan, inplace=True)
-            # df = df.dropna(subset=['paymentDate'])
-            # df.to_csv(os.path.join('data/dividends/', csv_name), index=False, header=True)
-
             # Download Balance Sheet
             url = "https://financialmodelingprep.com/api/v3/balance-sheet-statement/" + ticker + "?limit=120&apikey=" + api_key
             df = pd.read_json(url)
@@ -134,23 +117,19 @@ def download_data():
                 (datetime(int(end_date[0:4]), int(end_date[5:7]), int(end_date[8:10])) - timedelta(days=x)).strftime(
                     '%Y-%m-%d') for x in range(365 * 50)]
 
-            # Merge prices, dates, ticker, price target and fundamentals into df_all_data
+            # Merge prices, dates, ticker and fundamentals into df_all_data
             col_names = merged_df.columns.values.tolist()
             price_list = []
             ticker_list = []
-            price_target_list = []
             df_all_data = pd.DataFrame(index=dates, columns=col_names)
 
             for index, row in df_all_data.iterrows():
                 try:
                     price = df_stock_data_detailed.loc[index]['close']
-                    #price_target = float(price) * 1.5
                 except:
                     price = np.nan
-                    #price_target = np.nan
                 price_list.append(price)
                 ticker_list.append(ticker)
-                #price_target_list.append(price_target)
 
                 try:
                     df_all_data.loc[index] = merged_df.loc[int(index[0:4]) - 1]
@@ -160,7 +139,6 @@ def download_data():
             # Add price, ticker and price target to df
             df_all_data['price'] = price_list
             df_all_data['ticker'] = ticker_list
-            #df_all_data['price_target'] = price_target_list
 
             df_all_data = df_all_data.dropna(subset=['price'])  # If 'price' is the only data in row, drop row
             min_count = int(((100 - 50) / 100) * df_all_data.shape[1] + 1)  # If 50% of a row is nan, drop row
