@@ -14,13 +14,16 @@ def download_data():
     api_key = "8b7b2301a41406dc331928f7bd7e1cac"
 
     # Prepare directories
-    if os.path.exists('data/financials') == True:
-        shutil.rmtree('data/financials')
-    os.mkdir('data/financials')
+    # When using Docker, use this directory preparation. Otherwise, comment out
+    for filename in os.listdir('data/financials'):
+        file_path = os.path.join('data/financials', filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
-    if os.path.exists('data/dividends') == True:
-        shutil.rmtree('data/dividends')
-    os.mkdir('data/dividends')
+    # When not using Docker, use this directory preparation. Otherwise, comment out
+    #if os.path.exists('data/financials') == True:
+    #    shutil.rmtree('data/financials')
+    #os.mkdir('data/financials')
 
     # Get all available tickers from FMP API
     df_all_tickers = pd.read_json(
@@ -105,8 +108,6 @@ def download_data():
             frames = [df_balance_sheet, df_cashflow_statement, df_ratios, df_income_statement, df_key_metrics]
             merged_df = pd.concat(frames, axis=1)
             years_length_list.append(len(merged_df.index))
-            if len(merged_df.index) < 11:
-                print(ticker, ': ', len(merged_df.index), ' years')
 
             # Download price data
             start_date = str(merged_df.index[-1]) + "-01-01"
@@ -161,9 +162,16 @@ def download_data():
             dead_tickers_list.append(ticker)
 
     # Prepare directory
-    if os.path.exists('logs') == True:
-        shutil.rmtree('logs')
-    os.mkdir('logs')
+    # When using Docker, use this directory preparation. Otherwise, comment out
+    for filename in os.listdir('logs'):
+        file_path = os.path.join('logs', filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+    # When not using Docker, use this directory preparation. Otherwise, comment out
+    #if os.path.exists('logs') == True:
+    #    shutil.rmtree('logs')
+    #os.mkdir('logs')
 
     # Save used tickers into txt file
     with open('logs/stocks_used.txt', 'w') as f:

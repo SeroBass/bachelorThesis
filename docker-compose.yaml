@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  my-python-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./logs:/app/logs:rw
+      - ./data/backtesting:/app/data/backtesting:rw
+      - ./data/financials:/app/data/financials:rw

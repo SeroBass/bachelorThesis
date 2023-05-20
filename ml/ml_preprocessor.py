@@ -19,8 +19,15 @@ def set_target():
         factors_list_10.append(row['highest_price']/row['entry_price'])
 
     # Calculate mean of both strategy factors and get the better strategy
-    mean_20 = sum(factors_list_20)/len(factors_list_20)
-    mean_10 = sum(factors_list_10)/len(factors_list_10)
+    try:
+        mean_20 = sum(factors_list_20)/len(factors_list_20)
+    except:
+        mean_20 = 1
+    try:
+        mean_10 = sum(factors_list_10)/len(factors_list_10)
+    except:
+        mean_10 = 1
+
     ml_target = 0
     if mean_20 > mean_10:
         ml_target = mean_20 * 1.01
