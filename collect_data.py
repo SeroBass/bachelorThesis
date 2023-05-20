@@ -11,7 +11,7 @@ def download_data():
     print('Start downloading data')
 
     # Financial Modeling Prep (FMP) API key
-    api_key = "8b7b2301a41406dc331928f7bd7e1cac"
+    api_key = ""
 
     # Prepare directories
     # When using Docker, use this directory preparation. Otherwise, comment out
